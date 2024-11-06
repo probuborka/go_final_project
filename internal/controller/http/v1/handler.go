@@ -26,8 +26,8 @@ func (h Handler) Init() *chi.Mux {
 	// // Создать сообщение
 	// r.Post("/message", h.postMessage)
 
-	// // Получить статистику
-	// r.Get("/statistics", h.getStatistics)
+	//next date
+	r.Get("/api/nextdate", h.getNextDate)
 
 	return r
 }

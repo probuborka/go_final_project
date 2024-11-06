@@ -14,6 +14,8 @@ const (
 					repeat VARCHAR(128)
 				);
 				CREATE INDEX scheduler_date ON "scheduler"("date");`
+
+	Format = "20060102"
 )
 
 type HTTPConfig struct {

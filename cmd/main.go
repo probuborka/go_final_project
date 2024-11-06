@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/probuborka/go_final_project/config"
+	"github.com/probuborka/go_final_project/internal/config"
 	handler "github.com/probuborka/go_final_project/internal/controller/http/v1"
 	"github.com/probuborka/go_final_project/pkg/logger"
 	"github.com/probuborka/go_final_project/pkg/route"
