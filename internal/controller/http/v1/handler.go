@@ -1,33 +1,43 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi"
 	"github.com/probuborka/go_final_project/internal/entity"
+	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
-type Handler struct {
-	//message service.Message
+type handler struct {
+	task task
 }
 
-func New() *Handler {
-	return &Handler{
-		//message: services.Message,
+func New(task task) *handler {
+	return &handler{
+		task: task,
 	}
 }
 
-func (h Handler) Init() *chi.Mux {
-	r := chi.NewRouter()
+func (h handler) Init() *http.ServeMux {
+	r := http.NewServeMux()
 
 	//web
 	r.Handle("/", http.FileServer(http.Dir(entity.WebDir)))
 
-	// // Создать сообщение
-	// r.Post("/message", h.postMessage)
-
 	//next date
-	r.Get("/api/nextdate", h.getNextDate)
+	r.HandleFunc("GET /api/nextdate", h.getNextDate)
+
+	//task
+	r.HandleFunc("POST /api/task", h.createTask)
 
 	return r
+}
+
+func response(w http.ResponseWriter, v any, statusCode int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(statusCode)
+	err := json.NewEncoder(w).Encode(v)
+	if err != nil {
+		logger.Error(err)
+	}
 }

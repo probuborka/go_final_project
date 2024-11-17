@@ -2,10 +2,10 @@ package entity
 
 const (
 	Port     = "7540"
-	WebDir   = "../web"
+	WebDir   = "./web"
 	DBName   = "scheduler.db"
 	DBDriver = "sqlite"
-	DBDir    = "../db"
+	DBDir    = "./db"
 	DBCreate = `CREATE TABLE scheduler (
 					id integer PRIMARY KEY,
 					date VARCHAR(8) NOT NULL,

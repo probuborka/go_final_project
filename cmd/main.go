@@ -9,8 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	repository "github.com/probuborka/go_final_project/internal/adapters/sqlite"
 	"github.com/probuborka/go_final_project/internal/config"
 	handler "github.com/probuborka/go_final_project/internal/controller/http/v1"
+	"github.com/probuborka/go_final_project/internal/service"
 	"github.com/probuborka/go_final_project/pkg/logger"
 	"github.com/probuborka/go_final_project/pkg/route"
 	"github.com/probuborka/go_final_project/pkg/sqlite"
@@ -32,8 +34,14 @@ func main() {
 	}
 	defer db.Close()
 
+	//repo
+	repo := repository.New(db)
+
+	//service
+	service := service.New(repo.Task)
+
 	//handlers
-	handlers := handler.New()
+	handlers := handler.New(service.Task)
 
 	//http server
 	server := route.New(cfg.HTTP.Port, handlers.Init())

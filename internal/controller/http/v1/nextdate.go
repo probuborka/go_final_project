@@ -8,7 +8,7 @@ import (
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
-func (h Handler) getNextDate(w http.ResponseWriter, r *http.Request) {
+func (h handler) getNextDate(w http.ResponseWriter, r *http.Request) {
 
 	now := r.FormValue("now")
 	nowDate, err := time.Parse(entity.Format, now)

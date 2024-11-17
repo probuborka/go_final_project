@@ -37,7 +37,7 @@ func NextDate(nowDate time.Time, date string, repeat string) (string, error) {
 	case "y":
 		return ruleY(nowDate, startDate, repeats)
 	case "w":
-		return ruleW(nowDate, repeats)
+		return ruleW(nowDate, startDate, repeats)
 	case "m":
 		return ruleM(nowDate, startDate, repeats)
 	default:
@@ -62,6 +62,10 @@ func ruleD(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 
 	if days < 1 || days > 400 {
 		return "", fmt.Errorf("%w: number of days outside the interval (1..400)", errRuleD)
+	}
+
+	if nowDate.Format(Format) == startDate.Format(Format) {
+		return startDate.Format(Format), nil
 	}
 
 	//calculations
@@ -94,7 +98,7 @@ func ruleY(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 // w 7 — задача перенесётся на ближайшее воскресенье;
 // w 1,4,5 — задача перенесётся на ближайший понедельник, четверг или пятницу;
 // w 2,3 — задача перенесётся на ближайший вторник или среду.
-func ruleW(nowDate time.Time, repeat []string) (string, error) {
+func ruleW(nowDate time.Time, startDate time.Time, repeat []string) (string, error) {
 	//check
 	if len(repeat) != 2 {
 		return "", fmt.Errorf("%w: format error", errRuleW)
@@ -122,6 +126,10 @@ func ruleW(nowDate time.Time, repeat []string) (string, error) {
 	}
 
 	//calculations
+	if nowDate.Before(startDate) {
+		nowDate = startDate
+	}
+	//
 	nextDate := nowDate
 	for d := 1; d <= 7; d++ {
 		nextDate = nextDate.AddDate(0, 0, 1)
@@ -152,8 +160,9 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 	}
 
 	//check day
-	days := strings.Split(repeat[1], ",")
-	for _, v := range days {
+	strDays := strings.Split(repeat[1], ",")
+	days := make([]int, 0)
+	for _, v := range strDays {
 		day, err := strconv.Atoi(v)
 		if err != nil {
 			return "", fmt.Errorf("%w: not a number %w", errRuleM, err)
@@ -162,6 +171,9 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 		if day < -2 || day > 31 {
 			return "", fmt.Errorf("%w: number of day outside the interval (-2..31)", errRuleM)
 		}
+
+		//
+		days = append(days, day)
 	}
 
 	sort.Slice(days, func(i, j int) bool {
@@ -169,10 +181,10 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 	})
 
 	//check month
-	months := make([]string, 0)
+	months := make([]int, 0)
 	if len == 3 {
-		months = strings.Split(repeat[2], ",")
-		for _, v := range months {
+		strMonths := strings.Split(repeat[2], ",")
+		for _, v := range strMonths {
 			month, err := strconv.Atoi(v)
 			if err != nil {
 				return "", fmt.Errorf("%w: not a number %w", errRuleM, err)
@@ -181,6 +193,9 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 			if month < 1 || month > 12 {
 				return "", fmt.Errorf("%w: number of month outside the interval (1..12)", errRuleM)
 			}
+
+			//
+			months = append(months, month)
 		}
 
 		sort.Slice(months, func(i, j int) bool {
@@ -189,11 +204,100 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 	}
 
 	//calculations
-	switch len {
-	case 2:
-		return "", nil
-	case 3:
-		return "", nil
+	switch {
+	case len == 2:
+		if startDate.Before(nowDate) {
+			startDate = nowDate
+		}
+		for {
+			//
+			nextDate := startDate
+			// current day
+			curDay := startDate.Day()
+			// last day
+			lastDay := startDate.AddDate(0, 1, -curDay).Day()
+			//
+			day := 0
+			m := 0
+			for _, v := range days {
+				if v < 0 {
+					day = lastDay + v + 1
+				} else {
+					day = v
+				}
+
+				if day > curDay && day <= lastDay-m {
+					nextDate = startDate.AddDate(0, 0, day-curDay)
+					if v == -2 {
+						m = 1
+					}
+					if v > 0 {
+						break
+					}
+				}
+			}
+			if nextDate.After(startDate) {
+				return nextDate.Format(Format), nil
+			}
+			startDate = startDate.AddDate(0, 1, -curDay+1)
+		}
+	case len == 3:
+		if startDate.Before(nowDate) {
+			startDate = nowDate
+		}
+		startDateCheck := startDate
+		for {
+			//
+			nextDate := startDate
+			// current day
+			curDay := startDate.Day()
+			// last day
+			lastDay := startDate.AddDate(0, 1, -curDay).Day()
+			// current month
+			curMonth := int(startDate.Month())
+			for _, m := range months {
+				if m < curMonth {
+					continue
+				} else if m > curMonth {
+					startDate = startDate.AddDate(0, m-curMonth, -curDay+1)
+					//
+					startDateCheck = startDate.AddDate(0, 0, -1)
+					//
+					nextDate = startDate
+					// current day
+					curDay = startDate.Day()
+					// last day
+					lastDay = startDate.AddDate(0, 1, -curDay).Day()
+					//
+					curMonth = int(startDate.Month())
+				}
+				//
+				day := 0
+				m := 0
+				for _, d := range days {
+					if d < 0 {
+						day = lastDay + d + 1
+					} else {
+						day = d
+					}
+
+					if day >= curDay && day <= lastDay-m {
+						nextDate = startDate.AddDate(0, 0, day-curDay)
+						if d == -2 {
+							m = 1
+						}
+						if d > 0 {
+							break
+						}
+					}
+				}
+				if nextDate.After(startDateCheck) {
+					return nextDate.Format(Format), nil
+				}
+			}
+			startDate = startDate.AddDate(0, 12-curMonth+1, -curDay+1)
+			startDateCheck = startDate.AddDate(0, 0, -1)
+		}
 	default:
 		return "", fmt.Errorf("%w: :-(", errRuleM)
 	}
