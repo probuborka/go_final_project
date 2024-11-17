@@ -38,3 +38,33 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 
 	return int(id), nil
 }
+
+func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
+
+	search = "%" + search + "%"
+
+	rows, err := t.db.Query(
+		`SELECT id, date, title, comment, repeat 
+		 FROM scheduler 
+		 WHERE title LIKE :search OR comment LIKE :search
+		 ORDER BY date LIMIT :limit`,
+		sql.Named("search", search),
+		sql.Named("limit", 50),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]entity.Task, 0)
+	v := entity.Task{}
+
+	for rows.Next() {
+		err := rows.Scan(&v.ID, &v.Date, &v.Title, &v.Comment, &v.Repeat)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, v)
+	}
+
+	return tasks, nil
+}

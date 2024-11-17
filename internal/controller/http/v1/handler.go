@@ -28,7 +28,11 @@ func (h handler) Init() *http.ServeMux {
 	r.HandleFunc("GET /api/nextdate", h.getNextDate)
 
 	//task
+	//createTask
 	r.HandleFunc("POST /api/task", h.createTask)
+
+	//getTasks
+	r.HandleFunc("GET /api/tasks", h.getTasks)
 
 	return r
 }
@@ -36,8 +40,10 @@ func (h handler) Init() *http.ServeMux {
 func response(w http.ResponseWriter, v any, statusCode int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(statusCode)
-	err := json.NewEncoder(w).Encode(v)
+	resp, err := json.Marshal(&v)
 	if err != nil {
 		logger.Error(err)
+		return
 	}
+	w.Write(resp)
 }

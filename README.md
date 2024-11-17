@@ -9,3 +9,4 @@ go test -run ^TestApp$ ./tests
 go test -run ^TestDB$ ./tests
 go test -run ^TestNextDate$ ./tests
 go test -run ^TestAddTask$ ./tests
+go test -run ^TestTasks$ ./tests

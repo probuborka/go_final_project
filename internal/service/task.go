@@ -16,6 +16,7 @@ var (
 
 type dbTask interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
+	Get(ctx context.Context, search string) ([]entity.Task, error)
 }
 
 type task struct {
@@ -48,6 +49,16 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	}
 
 	return id, nil
+}
+
+func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
+
+	tasks, err := t.db.Get(ctx, search)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }
 
 func validateTask(task *entity.Task) error {
