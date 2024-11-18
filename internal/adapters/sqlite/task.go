@@ -22,7 +22,7 @@ func (r repoTask) Create(ctx context.Context, task entity.Task) (int, error) {
 
 	res, err := r.db.Exec(
 		`INSERT INTO scheduler (date, title, comment, repeat) 
-			 VALUES (:date, :title, :comment, :repeat)`,
+		 VALUES (:date, :title, :comment, :repeat)`,
 		sql.Named("date", task.Date),
 		sql.Named("title", task.Title),
 		sql.Named("comment", task.Comment),
@@ -122,4 +122,17 @@ func (r repoTask) GetById(ctx context.Context, id string) (entity.Task, error) {
 	}
 
 	return task, nil
+}
+
+func (r repoTask) Delete(ctx context.Context, id string) error {
+	_, err := r.db.Exec(
+		`DELETE FROM scheduler 
+		 WHERE id = :id`,
+		sql.Named("id", id),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

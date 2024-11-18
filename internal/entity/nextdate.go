@@ -68,6 +68,10 @@ func ruleD(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 		return startDate.Format(Format), nil
 	}
 
+	// if nowDate.Before(startDate) {
+	// 	nowDate = startDate
+	// }
+
 	//calculations
 	nextDate := startDate.AddDate(0, 0, days)
 	for nextDate.Before(nowDate) {

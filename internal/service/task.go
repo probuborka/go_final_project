@@ -20,6 +20,7 @@ type dbTask interface {
 	Change(ctx context.Context, task entity.Task) error
 	Get(ctx context.Context, search string) ([]entity.Task, error)
 	GetById(ctx context.Context, id string) (entity.Task, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type task struct {
@@ -54,32 +55,32 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	return id, nil
 }
 
-func (t task) Change(ctx context.Context, task entity.Task) (entity.Task, error) {
+func (t task) Change(ctx context.Context, task entity.Task) error {
 	if task.ID == "" {
-		return task, entity.ErrNoID
+		return entity.ErrNoID
 	}
 
 	err := validateTask(&task)
 	if err != nil {
-		return task, err
+		return err
 	}
 
 	if strings.TrimSpace(task.Repeat) != "" {
 		task.Date, err = entity.NextDate(time.Now(), task.Date, task.Repeat)
 		if err != nil {
-			return task, err
+			return err
 		}
 	}
 
 	err = t.db.Change(ctx, task)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return task, entity.ErrTaskNotFound
+			return entity.ErrTaskNotFound
 		}
-		return task, err
+		return err
 	}
 
-	return entity.Task{}, nil
+	return nil
 }
 
 func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
@@ -98,8 +99,8 @@ func (t task) GetById(ctx context.Context, id string) (entity.Task, error) {
 		return entity.Task{}, entity.ErrNoID
 	}
 
-	//get by id
-	tasks, err := t.db.GetById(ctx, id)
+	//get task
+	task, err := t.db.GetById(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entity.Task{}, entity.ErrTaskNotFound
@@ -107,7 +108,70 @@ func (t task) GetById(ctx context.Context, id string) (entity.Task, error) {
 		return entity.Task{}, err
 	}
 
-	return tasks, nil
+	return task, nil
+}
+
+func (t task) Done(ctx context.Context, id string) error {
+	// check
+	if id == "" {
+		return entity.ErrNoID
+	}
+
+	//get task
+	task, err := t.db.GetById(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entity.ErrTaskNotFound
+		}
+		return err
+	}
+
+	//
+	if strings.TrimSpace(task.Repeat) != "" {
+		task.Date, err = entity.NextDate(time.Now().AddDate(-1, 0, 0), task.Date, task.Repeat)
+		if err != nil {
+			return err
+		}
+
+		err = t.db.Change(ctx, task)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return entity.ErrTaskNotFound
+			}
+			return err
+		}
+	} else {
+		err = t.db.Delete(ctx, id)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (t task) Delete(ctx context.Context, id string) error {
+	// check
+	if id == "" {
+		return entity.ErrNoID
+	}
+
+	//get task
+	_, err := t.db.GetById(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entity.ErrTaskNotFound
+		}
+		return err
+	}
+
+	//delete task
+	err = t.db.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateTask(task *entity.Task) error {

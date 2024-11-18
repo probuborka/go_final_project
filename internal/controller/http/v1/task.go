@@ -13,9 +13,11 @@ import (
 
 type task interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
-	Change(ctx context.Context, task entity.Task) (entity.Task, error)
+	Change(ctx context.Context, task entity.Task) error
 	Get(ctx context.Context, search string) ([]entity.Task, error)
 	GetById(ctx context.Context, id string) (entity.Task, error)
+	Done(ctx context.Context, id string) error
+	Delete(ctx context.Context, id string) error
 }
 
 func (h handler) createTask(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +109,7 @@ func (h handler) changeTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err = h.task.Change(r.Context(), task)
+	err = h.task.Change(r.Context(), task)
 	if err != nil {
 		//
 		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
@@ -117,5 +119,37 @@ func (h handler) changeTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//
-	response(w, task, http.StatusCreated)
+	response(w, struct{}{}, http.StatusCreated)
+}
+
+func (h handler) doneTask(w http.ResponseWriter, r *http.Request) {
+
+	id := r.FormValue("id")
+
+	err := h.task.Done(r.Context(), id)
+	if err != nil {
+		//
+		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
+		//
+		logger.Error(err)
+		return
+	}
+
+	response(w, struct{}{}, http.StatusOK)
+}
+
+func (h handler) deleteTask(w http.ResponseWriter, r *http.Request) {
+
+	id := r.FormValue("id")
+
+	err := h.task.Delete(r.Context(), id)
+	if err != nil {
+		//
+		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
+		//
+		logger.Error(err)
+		return
+	}
+
+	response(w, struct{}{}, http.StatusOK)
 }

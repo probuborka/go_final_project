@@ -27,7 +27,6 @@ func (h handler) Init() *http.ServeMux {
 	//next date
 	r.HandleFunc("GET /api/nextdate", h.getNextDate)
 
-	//task
 	//createTask
 	r.HandleFunc("POST /api/task", h.createTask)
 
@@ -39,6 +38,12 @@ func (h handler) Init() *http.ServeMux {
 
 	//getTask
 	r.HandleFunc("PUT /api/task", h.changeTask)
+
+	//doneTask
+	r.HandleFunc("POST /api/task/done", h.doneTask)
+
+	//deleteTask
+	r.HandleFunc("DELETE /api/task", h.deleteTask)
 
 	return r
 }
