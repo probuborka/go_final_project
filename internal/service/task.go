@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -16,7 +17,9 @@ var (
 
 type dbTask interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
+	Change(ctx context.Context, task entity.Task) error
 	Get(ctx context.Context, search string) ([]entity.Task, error)
+	GetById(ctx context.Context, id string) (entity.Task, error)
 }
 
 type task struct {
@@ -51,11 +54,57 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	return id, nil
 }
 
+func (t task) Change(ctx context.Context, task entity.Task) (entity.Task, error) {
+	if task.ID == "" {
+		return task, entity.ErrNoID
+	}
+
+	err := validateTask(&task)
+	if err != nil {
+		return task, err
+	}
+
+	if strings.TrimSpace(task.Repeat) != "" {
+		task.Date, err = entity.NextDate(time.Now(), task.Date, task.Repeat)
+		if err != nil {
+			return task, err
+		}
+	}
+
+	err = t.db.Change(ctx, task)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return task, entity.ErrTaskNotFound
+		}
+		return task, err
+	}
+
+	return entity.Task{}, nil
+}
+
 func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
 
 	tasks, err := t.db.Get(ctx, search)
 	if err != nil {
 		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (t task) GetById(ctx context.Context, id string) (entity.Task, error) {
+	//check
+	if id == "" {
+		return entity.Task{}, entity.ErrNoID
+	}
+
+	//get by id
+	tasks, err := t.db.GetById(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entity.Task{}, entity.ErrTaskNotFound
+		}
+		return entity.Task{}, err
 	}
 
 	return tasks, nil

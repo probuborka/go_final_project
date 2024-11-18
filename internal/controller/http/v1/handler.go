@@ -34,6 +34,12 @@ func (h handler) Init() *http.ServeMux {
 	//getTasks
 	r.HandleFunc("GET /api/tasks", h.getTasks)
 
+	//getTask
+	r.HandleFunc("GET /api/task", h.getTask)
+
+	//getTask
+	r.HandleFunc("PUT /api/task", h.changeTask)
+
 	return r
 }
 

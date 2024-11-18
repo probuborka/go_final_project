@@ -3,23 +3,24 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/probuborka/go_final_project/internal/entity"
 )
 
-type task struct {
+type repoTask struct {
 	db *sql.DB
 }
 
-func newTask(db *sql.DB) task {
-	return task{
+func newRepoTask(db *sql.DB) repoTask {
+	return repoTask{
 		db: db,
 	}
 }
 
-func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
+func (r repoTask) Create(ctx context.Context, task entity.Task) (int, error) {
 
-	res, err := t.db.Exec(
+	res, err := r.db.Exec(
 		`INSERT INTO scheduler (date, title, comment, repeat) 
 			 VALUES (:date, :title, :comment, :repeat)`,
 		sql.Named("date", task.Date),
@@ -39,11 +40,42 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	return int(id), nil
 }
 
-func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
+func (r repoTask) Change(ctx context.Context, task entity.Task) error {
+
+	res, err := r.db.Exec(
+		`UPDATE scheduler 
+		 SET date    = :date,
+		     title   = :title,
+			 comment = :comment,
+			 repeat  = :repeat
+		 WHERE id = :id`,
+		sql.Named("id", task.ID),
+		sql.Named("date", task.Date),
+		sql.Named("title", task.Title),
+		sql.Named("comment", task.Comment),
+		sql.Named("repeat", task.Repeat),
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (r repoTask) Get(ctx context.Context, search string) ([]entity.Task, error) {
 
 	search = "%" + search + "%"
 
-	rows, err := t.db.Query(
+	rows, err := r.db.Query(
 		`SELECT id, date, title, comment, repeat 
 		 FROM scheduler 
 		 WHERE title LIKE :search OR comment LIKE :search
@@ -55,16 +87,39 @@ func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
 		return nil, err
 	}
 
+	task := entity.Task{}
 	tasks := make([]entity.Task, 0)
-	v := entity.Task{}
 
 	for rows.Next() {
-		err := rows.Scan(&v.ID, &v.Date, &v.Title, &v.Comment, &v.Repeat)
+		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
 		if err != nil {
 			return nil, err
 		}
-		tasks = append(tasks, v)
+		tasks = append(tasks, task)
 	}
 
 	return tasks, nil
+}
+
+func (r repoTask) GetById(ctx context.Context, id string) (entity.Task, error) {
+	task := entity.Task{}
+
+	iD, err := strconv.Atoi(id)
+	if err != nil {
+		return task, err
+	}
+
+	row := r.db.QueryRow(
+		`SELECT id, date, title, comment, repeat 
+		 FROM scheduler 
+		 WHERE id = :id`,
+		sql.Named("id", iD),
+	)
+
+	err = row.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+	if err != nil {
+		return task, err
+	}
+
+	return task, nil
 }

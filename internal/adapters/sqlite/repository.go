@@ -3,11 +3,11 @@ package repository
 import "database/sql"
 
 type repository struct {
-	Task task
+	Task repoTask
 }
 
 func New(db *sql.DB) *repository {
 	return &repository{
-		Task: newTask(db),
+		Task: newRepoTask(db),
 	}
 }
