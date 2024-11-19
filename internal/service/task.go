@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/probuborka/go_final_project/internal/entity"
+	"github.com/probuborka/go_final_project/internal/service/nextdate"
 )
 
 var (
@@ -41,9 +42,15 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	}
 
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = t.NextDate(time.Now(), task.Date, task.Repeat)
+		nowDate := time.Now()
+
+		date, err := nextdate.New(nowDate, task.Date, task.Repeat)
 		if err != nil {
 			return 0, err
+		}
+
+		if nowDate.Format(entity.Format) > task.Date {
+			task.Date = date.Next()
 		}
 	}
 
@@ -66,9 +73,15 @@ func (t task) Change(ctx context.Context, task entity.Task) error {
 	}
 
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = t.NextDate(time.Now(), task.Date, task.Repeat)
+		nowDate := time.Now()
+
+		date, err := nextdate.New(nowDate, task.Date, task.Repeat)
 		if err != nil {
 			return err
+		}
+
+		if nowDate.Format(entity.Format) > task.Date {
+			task.Date = date.Next()
 		}
 	}
 
@@ -128,10 +141,13 @@ func (t task) Done(ctx context.Context, id string) error {
 
 	//
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = t.NextDate(time.Now().AddDate(-1, 0, 0), task.Date, task.Repeat)
+		nowDate := time.Now()
+		date, err := nextdate.New(nowDate, task.Date, task.Repeat)
 		if err != nil {
 			return err
 		}
+
+		task.Date = date.Next()
 
 		err = t.db.Change(ctx, task)
 		if err != nil {
@@ -175,6 +191,7 @@ func (t task) Delete(ctx context.Context, id string) error {
 }
 
 func validateTask(task *entity.Task) error {
+
 	if strings.TrimSpace(task.Title) == "" {
 		return fmt.Errorf("%w: Title is empty", errValidateTask)
 	}
@@ -194,4 +211,14 @@ func validateTask(task *entity.Task) error {
 	}
 
 	return nil
+}
+
+func (t task) NextDate(nowDate time.Time, dateStr string, repeat string) (string, error) {
+
+	date, err := nextdate.New(nowDate, dateStr, repeat)
+	if err != nil {
+		return "", err
+	}
+
+	return date.Next(), nil
 }
