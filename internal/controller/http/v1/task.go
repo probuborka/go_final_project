@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/probuborka/go_final_project/internal/entity"
 	"github.com/probuborka/go_final_project/pkg/logger"
@@ -18,6 +19,7 @@ type task interface {
 	GetById(ctx context.Context, id string) (entity.Task, error)
 	Done(ctx context.Context, id string) error
 	Delete(ctx context.Context, id string) error
+	NextDate(nowDate time.Time, date string, repeat string) (string, error)
 }
 
 func (h handler) createTask(w http.ResponseWriter, r *http.Request) {

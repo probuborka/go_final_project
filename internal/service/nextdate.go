@@ -1,4 +1,4 @@
-package entity
+package service
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/probuborka/go_final_project/internal/entity"
 )
 
 var (
@@ -17,9 +19,9 @@ var (
 	errRuleM    = errors.New("func ruleM()")
 )
 
-func NextDate(nowDate time.Time, date string, repeat string) (string, error) {
+func (t task) NextDate(nowDate time.Time, date string, repeat string) (string, error) {
 	//check
-	startDate, err := time.Parse(Format, date)
+	startDate, err := time.Parse(entity.Format, date)
 	if err != nil {
 		return "", fmt.Errorf("%w: date format error", errNextData)
 	}
@@ -64,8 +66,8 @@ func ruleD(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 		return "", fmt.Errorf("%w: number of days outside the interval (1..400)", errRuleD)
 	}
 
-	if nowDate.Format(Format) == startDate.Format(Format) {
-		return startDate.Format(Format), nil
+	if nowDate.Format(entity.Format) == startDate.Format(entity.Format) {
+		return startDate.Format(entity.Format), nil
 	}
 
 	// if nowDate.Before(startDate) {
@@ -78,7 +80,7 @@ func ruleD(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 		nextDate = nextDate.AddDate(0, 0, days)
 	}
 
-	return nextDate.Format(Format), nil
+	return nextDate.Format(entity.Format), nil
 }
 
 // y — задача выполняется ежегодно. Этот параметр не требует дополнительных уточнений.
@@ -95,7 +97,7 @@ func ruleY(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 		nextDate = nextDate.AddDate(1, 0, 0)
 	}
 
-	return nextDate.Format(Format), nil
+	return nextDate.Format(entity.Format), nil
 }
 
 // w <через запятую от 1 до 7> — задача назначается в указанные дни недели, где 1 — понедельник, 7 — воскресенье. Например:
@@ -145,7 +147,7 @@ func ruleW(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 			break
 		}
 	}
-	return nextDate.Format(Format), nil
+	return nextDate.Format(entity.Format), nil
 }
 
 // m <через запятую от 1 до 31,-1,-2> [через запятую от 1 до 12] — задача назначается в указанные дни месяца.
@@ -241,7 +243,7 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 				}
 			}
 			if nextDate.After(startDate) {
-				return nextDate.Format(Format), nil
+				return nextDate.Format(entity.Format), nil
 			}
 			startDate = startDate.AddDate(0, 1, -curDay+1)
 		}
@@ -296,7 +298,7 @@ func ruleM(nowDate time.Time, startDate time.Time, repeat []string) (string, err
 					}
 				}
 				if nextDate.After(startDateCheck) {
-					return nextDate.Format(Format), nil
+					return nextDate.Format(entity.Format), nil
 				}
 			}
 			startDate = startDate.AddDate(0, 12-curMonth+1, -curDay+1)

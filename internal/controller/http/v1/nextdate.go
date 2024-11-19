@@ -22,7 +22,7 @@ func (h handler) getNextDate(w http.ResponseWriter, r *http.Request) {
 
 	repeat := r.FormValue("repeat")
 
-	nextDate, err := entity.NextDate(nowDate, startDate, repeat)
+	nextDate, err := h.task.NextDate(nowDate, startDate, repeat)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger.Error(err)

@@ -41,7 +41,7 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	}
 
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = entity.NextDate(time.Now(), task.Date, task.Repeat)
+		task.Date, err = t.NextDate(time.Now(), task.Date, task.Repeat)
 		if err != nil {
 			return 0, err
 		}
@@ -66,7 +66,7 @@ func (t task) Change(ctx context.Context, task entity.Task) error {
 	}
 
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = entity.NextDate(time.Now(), task.Date, task.Repeat)
+		task.Date, err = t.NextDate(time.Now(), task.Date, task.Repeat)
 		if err != nil {
 			return err
 		}
@@ -128,7 +128,7 @@ func (t task) Done(ctx context.Context, id string) error {
 
 	//
 	if strings.TrimSpace(task.Repeat) != "" {
-		task.Date, err = entity.NextDate(time.Now().AddDate(-1, 0, 0), task.Date, task.Repeat)
+		task.Date, err = t.NextDate(time.Now().AddDate(-1, 0, 0), task.Date, task.Repeat)
 		if err != nil {
 			return err
 		}
