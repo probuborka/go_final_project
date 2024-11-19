@@ -212,13 +212,3 @@ func validateTask(task *entity.Task) error {
 
 	return nil
 }
-
-func (t task) NextDate(nowDate time.Time, dateStr string, repeat string) (string, error) {
-
-	date, err := nextdate.New(nowDate, dateStr, repeat)
-	if err != nil {
-		return "", err
-	}
-
-	return date.Next(), nil
-}

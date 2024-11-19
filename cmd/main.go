@@ -11,7 +11,7 @@ import (
 
 	repository "github.com/probuborka/go_final_project/internal/adapters/sqlite"
 	"github.com/probuborka/go_final_project/internal/config"
-	handler "github.com/probuborka/go_final_project/internal/controller/http/v1"
+	handler "github.com/probuborka/go_final_project/internal/controller/http"
 	"github.com/probuborka/go_final_project/internal/service"
 	"github.com/probuborka/go_final_project/pkg/logger"
 	"github.com/probuborka/go_final_project/pkg/route"
