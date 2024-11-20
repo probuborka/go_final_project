@@ -1,4 +1,4 @@
-package main
+package todo
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 	"github.com/probuborka/go_final_project/pkg/sqlite"
 )
 
-func main() {
+func Run() {
 	//config
 	cfg, err := config.New()
 	if err != nil {
