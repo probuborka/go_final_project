@@ -31,6 +31,6 @@ func New(now time.Time, dateStr string, repeat string) (date, error) {
 	case "m":
 		return newM(now, date, repeats)
 	default:
-		return nil, fmt.Errorf("%w: rule %s", entity.ErrNotFound, repeats[0])
+		return nil, fmt.Errorf("%w: repeat %s", entity.ErrNotFound, repeats[0])
 	}
 }

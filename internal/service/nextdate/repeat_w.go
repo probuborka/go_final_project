@@ -18,7 +18,7 @@ type w struct {
 func newW(now time.Time, date time.Time, repeat []string) (date, error) {
 
 	if len(repeat) != 2 {
-		return nil, fmt.Errorf("%w: rule W %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat W %s", entity.ErrFormatError, repeat)
 	}
 
 	daysWeeks := strings.Split(repeat[1], ",")

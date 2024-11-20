@@ -17,7 +17,7 @@ type d struct {
 func newD(now time.Time, date time.Time, repeat []string) (date, error) {
 
 	if len(repeat) != 2 {
-		return nil, fmt.Errorf("%w: rule D %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat D %s", entity.ErrFormatError, repeat)
 	}
 
 	days, err := strconv.Atoi(repeat[1])

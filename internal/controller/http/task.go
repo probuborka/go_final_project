@@ -12,7 +12,7 @@ import (
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
-type task interface {
+type taskService interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
 	Change(ctx context.Context, task entity.Task) error
 	Get(ctx context.Context, search string) ([]entity.Task, error)

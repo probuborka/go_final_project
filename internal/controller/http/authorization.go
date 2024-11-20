@@ -12,7 +12,7 @@ import (
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
-type authorization interface {
+type authorizationService interface {
 	Password(ctx context.Context, authorization entity.Authorization) (string, error)
 }
 

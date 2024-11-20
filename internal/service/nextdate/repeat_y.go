@@ -14,7 +14,7 @@ type y struct {
 
 func newY(now time.Time, date time.Time, repeat []string) (date, error) {
 	if len(repeat) != 1 {
-		return nil, fmt.Errorf("%w: rule Y %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat Y %s", entity.ErrFormatError, repeat)
 	}
 
 	return y{

@@ -21,7 +21,7 @@ type m struct {
 func newM(now time.Time, date time.Time, repeat []string) (date, error) {
 	len := len(repeat)
 	if len != 2 && len != 3 {
-		return nil, fmt.Errorf("%w: rule M %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat M %s", entity.ErrFormatError, repeat)
 	}
 
 	//check day
