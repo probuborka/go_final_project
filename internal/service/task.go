@@ -12,10 +12,6 @@ import (
 	"github.com/probuborka/go_final_project/internal/service/nextdate"
 )
 
-var (
-	errValidateTask = errors.New("func validateTask()")
-)
-
 type dbTask interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
 	Change(ctx context.Context, task entity.Task) error
@@ -35,6 +31,7 @@ func newTask(db dbTask) task {
 }
 
 func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
+
 	//check
 	err := validateTask(&task)
 	if err != nil {
