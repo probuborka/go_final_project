@@ -25,7 +25,7 @@ func (h handler) Init() *http.ServeMux {
 	r.Handle("/", http.FileServer(http.Dir(entity.WebDir)))
 
 	//next date
-	r.HandleFunc("GET /api/nextdate", auth(h.getNextDate))
+	r.HandleFunc("GET /api/nextdate", h.getNextDate)
 
 	//createTask
 	r.HandleFunc("POST /api/task", auth(h.createTask))

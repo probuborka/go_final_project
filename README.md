@@ -4,6 +4,9 @@
 
 Директория `web` содержит файлы фронтенда.
 
+//
+docker build -t todo-list .
+docker run -d -p 7540:7540 todo-list
 
 //
 go clean -testcache
