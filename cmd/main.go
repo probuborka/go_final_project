@@ -41,7 +41,10 @@ func main() {
 	service := service.New(repo.Task)
 
 	//handlers
-	handlers := handler.New(service.Task)
+	handlers := handler.New(
+		service.Task,
+		service.Authorization,
+	)
 
 	//http server
 	server := route.New(cfg.HTTP.Port, handlers.Init())

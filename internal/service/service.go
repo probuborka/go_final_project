@@ -1,11 +1,13 @@
 package service
 
 type service struct {
-	Task task
+	Task          task
+	Authorization authorization
 }
 
 func New(taskDB dbTask) *service {
 	return &service{
-		Task: newTask(taskDB),
+		Task:          newTask(taskDB),
+		Authorization: newAuthorization(),
 	}
 }

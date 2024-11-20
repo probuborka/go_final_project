@@ -101,10 +101,10 @@ func (r repoTask) Get(ctx context.Context, search string) ([]entity.Task, error)
 	return tasks, nil
 }
 
-func (r repoTask) GetById(ctx context.Context, id string) (entity.Task, error) {
+func (r repoTask) GetById(ctx context.Context, idStr string) (entity.Task, error) {
 	task := entity.Task{}
 
-	iD, err := strconv.Atoi(id)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return task, err
 	}
@@ -113,7 +113,7 @@ func (r repoTask) GetById(ctx context.Context, id string) (entity.Task, error) {
 		`SELECT id, date, title, comment, repeat 
 		 FROM scheduler 
 		 WHERE id = :id`,
-		sql.Named("id", iD),
+		sql.Named("id", id),
 	)
 
 	err = row.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)

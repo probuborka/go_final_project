@@ -7,12 +7,14 @@ import (
 )
 
 type handler struct {
-	task task
+	task          task
+	authorization authorization
 }
 
-func New(task task) *handler {
+func New(task task, authorization authorization) *handler {
 	return &handler{
-		task: task,
+		task:          task,
+		authorization: authorization,
 	}
 }
 
@@ -23,25 +25,28 @@ func (h handler) Init() *http.ServeMux {
 	r.Handle("/", http.FileServer(http.Dir(entity.WebDir)))
 
 	//next date
-	r.HandleFunc("GET /api/nextdate", h.getNextDate)
+	r.HandleFunc("GET /api/nextdate", auth(h.getNextDate))
 
 	//createTask
-	r.HandleFunc("POST /api/task", h.createTask)
+	r.HandleFunc("POST /api/task", auth(h.createTask))
 
 	//getTasks
-	r.HandleFunc("GET /api/tasks", h.getTasks)
+	r.HandleFunc("GET /api/tasks", auth(h.getTasks))
 
 	//getTask
-	r.HandleFunc("GET /api/task", h.getTask)
+	r.HandleFunc("GET /api/task", auth(h.getTask))
 
 	//getTask
-	r.HandleFunc("PUT /api/task", h.changeTask)
+	r.HandleFunc("PUT /api/task", auth(h.changeTask))
 
 	//doneTask
-	r.HandleFunc("POST /api/task/done", h.doneTask)
+	r.HandleFunc("POST /api/task/done", auth(h.doneTask))
 
 	//deleteTask
-	r.HandleFunc("DELETE /api/task", h.deleteTask)
+	r.HandleFunc("DELETE /api/task", auth(h.deleteTask))
+
+	//authorization
+	r.HandleFunc("POST /api/signin", h.password)
 
 	return r
 }
