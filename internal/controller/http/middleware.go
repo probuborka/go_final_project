@@ -49,3 +49,35 @@ func auth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// func auth(next http.HandlerFunc) http.HandlerFunc {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		// смотрим наличие пароля
+// 		pass := os.Getenv("TODO_PASSWORD")
+// 		if len(pass) > 0 {
+// 			var token string // JWT-токен из куки
+// 			// получаем куку
+// 			cookie, err := r.Cookie("token")
+// 			if err == nil {
+// 				token = cookie.Value
+// 			}
+// 			//
+// 			secret := []byte(pass)
+// 			// здесь код для валидации и проверки JWT-токена
+// 			jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+// 				// секретный ключ для всех токенов одинаковый, поэтому просто возвращаем его
+// 				return secret, nil
+// 			})
+// 			if err != nil {
+// 				response(w, entity.Error{Error: err.Error()}, http.StatusUnauthorized)
+// 				return
+// 			}
+// 			if !jwtToken.Valid {
+// 				// возвращаем ошибку авторизации 401
+// 				response(w, entity.Error{Error: "Authentification required"}, http.StatusUnauthorized)
+// 				return
+// 			}
+// 		}
+// 		next(w, r)
+// 	})
+// }
