@@ -24,8 +24,12 @@ go run ./cmd/todo/main.go
 ```
 docker build -t todo-list . 
 ```  
+```
 docker run -d -p 7540:7540 todo-list  
-адрес http://localhost:7540
+```
+```
+http://localhost:7540
+```
 
 ## Инструкция по запуску тестов
 ### Параметры для теста файл tests/settings.go
@@ -36,7 +40,9 @@ Search = true
 Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.P4Lqll22jQQJ1eMJikvNg5HKG-cKB0hUZA9BZFIG7Jk"
 
 ### Тесты
+```
 cd <проект>  
+```
 ```golang
 go test ./tests
 ```
