@@ -12,7 +12,8 @@ import (
 	repository "github.com/probuborka/go_final_project/internal/adapters/sqlite"
 	"github.com/probuborka/go_final_project/internal/config"
 	handler "github.com/probuborka/go_final_project/internal/controller/http"
-	"github.com/probuborka/go_final_project/internal/service"
+	"github.com/probuborka/go_final_project/internal/service/authentication"
+	"github.com/probuborka/go_final_project/internal/service/task"
 	"github.com/probuborka/go_final_project/pkg/logger"
 	"github.com/probuborka/go_final_project/pkg/route"
 	"github.com/probuborka/go_final_project/pkg/sqlite"
@@ -38,12 +39,13 @@ func Run() {
 	repo := repository.New(db)
 
 	//service
-	service := service.New(repo.Task)
+	task := task.New(repo.Task)
+	authentication := authentication.New()
 
 	//handlers
 	handlers := handler.New(
-		service.Task,
-		service.Authorization,
+		task,
+		authentication,
 	)
 
 	//http server

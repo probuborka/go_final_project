@@ -71,16 +71,19 @@ func (r repoTask) Change(ctx context.Context, task entity.Task) error {
 	return nil
 }
 
-func (r repoTask) Get(ctx context.Context, search string) ([]entity.Task, error) {
+func (r repoTask) Get(ctx context.Context, search string, searchDate string) ([]entity.Task, error) {
 
 	search = "%" + search + "%"
 
 	rows, err := r.db.Query(
 		`SELECT id, date, title, comment, repeat 
 		 FROM scheduler 
-		 WHERE title LIKE :search OR comment LIKE :search
+		 WHERE title LIKE :search 
+		    OR comment LIKE :search
+			OR date = :searchDate
 		 ORDER BY date LIMIT :limit`,
 		sql.Named("search", search),
+		sql.Named("searchDate", searchDate),
 		sql.Named("limit", 50),
 	)
 	if err != nil {

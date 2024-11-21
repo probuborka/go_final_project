@@ -10,15 +10,30 @@ import (
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
+type middleware func(http.Handler) http.Handler
+
+func compileMiddleware(h http.Handler, m []middleware) http.Handler {
+	if len(m) < 1 {
+		return h
+	}
+
+	wrapped := h
+
+	for i := len(m) - 1; i >= 0; i-- {
+		wrapped = m[i](wrapped)
+	}
+
+	return wrapped
+}
+
 func logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		start := time.Now()
+		logger.Infof("%s %s %s", req.Method, req.RequestURI, time.Now())
 		next.ServeHTTP(w, req)
-		logger.Infof("%s %s %s", req.Method, req.RequestURI, time.Since(start))
 	})
 }
 
-func auth(next http.Handler) http.Handler {
+func authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// смотрим наличие пароля
 		pass := os.Getenv("TODO_PASSWORD")

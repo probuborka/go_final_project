@@ -1,6 +1,6 @@
 package entity
 
-type Authorization struct {
+type Authentication struct {
 	Password string `json:"password"`
 }
 

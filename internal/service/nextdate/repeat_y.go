@@ -30,5 +30,5 @@ func (y y) Next() string {
 		nextDate = nextDate.AddDate(1, 0, 0)
 	}
 
-	return nextDate.Format(entity.Format)
+	return nextDate.Format(entity.Format1)
 }

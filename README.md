@@ -1,25 +1,45 @@
-# Файлы для итогового задания
+# TODO-лист 😃
 
-В директории `tests` находятся тесты для проверки API, которое должно быть реализовано в веб-сервере.
+## Описание проекта
+Веб-сервер, который реализует функциональность простейшего планировщика задач.
 
-Директория `web` содержит файлы фронтенда.
+## Список выполенных заданий со звёздочкой
+Все задания выполнены
+- Возможность определять порт из переменной окружения TODO_PORT.
+- Возможность определять путь к файлу базы данных через переменную окружения TODO_DBFILE.
+- Правила повторения задач W и M.
+- Возможность выбрать задачи через строку поиска.
+- Аутентификация
+- Создание докер образа
 
-//
+## Инструкция
+### Запуску кода локально 
+cd <проект>
+go run ./cmd/todo/main.go
+
+### Докер
 docker build -t todo-list .
 docker run -d -p 7540:7540 todo-list
+адрес http://localhost:7540
 
-//
-go clean -testcache
-//
-go test -run ^TestApp$ ./tests
-go test -run ^TestDB$ ./tests
-go test -run ^TestNextDate$ ./tests
-go test -run ^TestAddTask$ ./tests
-go test -run ^TestTasks$ ./tests
-go test -run ^TestTask$ ./tests
-go test -run ^TestEditTask$ ./tests
+## Инструкция по запуску тестов
+# Параметры для теста файл tests/settings.go
+Port = 7540
+DBFile = "../db/scheduler.db"
+FullNextDate = true
+Search = true
+Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.P4Lqll22jQQJ1eMJikvNg5HKG-cKB0hUZA9BZFIG7Jk`
 
-go test -run ^TestDone$ ./tests
-go test -run ^TestDelTask$ ./tests
+# Тесты
+cd <проект>
+- go test ./tests
+- go test -run ^TestApp$ ./tests
+- go test -run ^TestDB$ ./tests
+- go test -run ^TestNextDate$ ./tests
+- go test -run ^TestAddTask$ ./tests
+- go test -run ^TestTasks$ ./tests
+- go test -run ^TestTask$ ./tests
+- go test -run ^TestEditTask$ ./tests
+- go test -run ^TestDone$ ./tests
+- go test -run ^TestDelTask$ ./tests
 
-go test ./tests

@@ -43,5 +43,5 @@ func (d d) Next() string {
 		nextDate = nextDate.AddDate(0, 0, d.days)
 	}
 
-	return nextDate.Format(entity.Format)
+	return nextDate.Format(entity.Format1)
 }

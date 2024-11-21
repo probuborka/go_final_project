@@ -112,7 +112,7 @@ func (m m) Next() string {
 				}
 			}
 			if nextDate.After(m.date) {
-				return nextDate.Format(entity.Format)
+				return nextDate.Format(entity.Format1)
 			}
 			m.date = m.date.AddDate(0, 1, -curDay+1)
 		}
@@ -167,7 +167,7 @@ func (m m) Next() string {
 					}
 				}
 				if nextDate.After(startDateCheck) {
-					return nextDate.Format(entity.Format)
+					return nextDate.Format(entity.Format1)
 				}
 			}
 			m.date = m.date.AddDate(0, 12-curMonth+1, -curDay+1)

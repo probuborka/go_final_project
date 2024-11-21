@@ -13,7 +13,7 @@ type date interface {
 }
 
 func New(now time.Time, dateStr string, repeat string) (date, error) {
-	date, err := time.Parse(entity.Format, dateStr)
+	date, err := time.Parse(entity.Format1, dateStr)
 	if err != nil {
 		return nil, err
 	}

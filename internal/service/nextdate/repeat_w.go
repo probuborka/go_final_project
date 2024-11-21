@@ -66,5 +66,5 @@ func (w w) Next() string {
 			break
 		}
 	}
-	return nextDate.Format(entity.Format)
+	return nextDate.Format(entity.Format1)
 }

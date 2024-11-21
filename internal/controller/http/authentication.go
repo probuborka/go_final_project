@@ -10,12 +10,12 @@ import (
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
-type authorizationService interface {
-	Password(ctx context.Context, authorization entity.Authorization) (string, error)
+type serviceAuthentication interface {
+	Password(ctx context.Context, authentication entity.Authentication) (string, error)
 }
 
 func (h handler) password(w http.ResponseWriter, r *http.Request) {
-	var authorization entity.Authorization
+	var authentication entity.Authentication
 	var buf bytes.Buffer
 
 	_, err := buf.ReadFrom(r.Body)
@@ -27,7 +27,7 @@ func (h handler) password(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(buf.Bytes(), &authorization)
+	err = json.Unmarshal(buf.Bytes(), &authentication)
 	if err != nil {
 		//
 		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
@@ -36,7 +36,7 @@ func (h handler) password(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authorization.Password(r.Context(), authorization)
+	token, err := h.authentication.Password(r.Context(), authentication)
 	if err != nil {
 		//
 		response(w, entity.Error{Error: err.Error()}, http.StatusUnauthorized)

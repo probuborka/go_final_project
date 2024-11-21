@@ -1,4 +1,4 @@
-package service
+package task
 
 import (
 	"context"
@@ -12,25 +12,25 @@ import (
 	"github.com/probuborka/go_final_project/internal/service/nextdate"
 )
 
-type dbTask interface {
+type repository interface {
 	Create(ctx context.Context, task entity.Task) (int, error)
 	Change(ctx context.Context, task entity.Task) error
-	Get(ctx context.Context, search string) ([]entity.Task, error)
+	Get(ctx context.Context, search string, searchDate string) ([]entity.Task, error)
 	GetById(ctx context.Context, id string) (entity.Task, error)
 	Delete(ctx context.Context, id string) error
 }
 
-type task struct {
-	db dbTask
+type service struct {
+	repo repository
 }
 
-func newTask(db dbTask) task {
-	return task{
-		db: db,
+func New(repo repository) service {
+	return service{
+		repo: repo,
 	}
 }
 
-func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
+func (s service) Create(ctx context.Context, task entity.Task) (int, error) {
 
 	//check
 	err := validateTask(&task)
@@ -47,13 +47,13 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 			return 0, err
 		}
 
-		if nowDate.Format(entity.Format) > task.Date {
+		if nowDate.Format(entity.Format1) > task.Date {
 			task.Date = date.Next()
 		}
 	}
 
 	//db create task
-	id, err := t.db.Create(ctx, task)
+	id, err := s.repo.Create(ctx, task)
 	if err != nil {
 		return 0, err
 	}
@@ -61,7 +61,7 @@ func (t task) Create(ctx context.Context, task entity.Task) (int, error) {
 	return id, nil
 }
 
-func (t task) Change(ctx context.Context, task entity.Task) error {
+func (s service) Change(ctx context.Context, task entity.Task) error {
 	//check
 	if task.ID == "" {
 		return entity.ErrNoID
@@ -81,13 +81,13 @@ func (t task) Change(ctx context.Context, task entity.Task) error {
 			return err
 		}
 
-		if nowDate.Format(entity.Format) > task.Date {
+		if nowDate.Format(entity.Format1) > task.Date {
 			task.Date = date.Next()
 		}
 	}
 
 	//db change task
-	err = t.db.Change(ctx, task)
+	err = s.repo.Change(ctx, task)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entity.ErrTaskNotFound
@@ -98,10 +98,16 @@ func (t task) Change(ctx context.Context, task entity.Task) error {
 	return nil
 }
 
-func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
+func (s service) Get(ctx context.Context, search string) ([]entity.Task, error) {
+	var searchDate string
+
+	date, err := time.Parse(entity.Format2, search)
+	if err == nil {
+		searchDate = date.Format(entity.Format1)
+	}
 
 	//get change tasks
-	tasks, err := t.db.Get(ctx, search)
+	tasks, err := s.repo.Get(ctx, search, searchDate)
 	if err != nil {
 		return nil, err
 	}
@@ -109,14 +115,14 @@ func (t task) Get(ctx context.Context, search string) ([]entity.Task, error) {
 	return tasks, nil
 }
 
-func (t task) GetById(ctx context.Context, id string) (entity.Task, error) {
+func (s service) GetById(ctx context.Context, id string) (entity.Task, error) {
 	//check
 	if id == "" {
 		return entity.Task{}, entity.ErrNoID
 	}
 
 	//get task by id
-	task, err := t.db.GetById(ctx, id)
+	task, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entity.Task{}, entity.ErrTaskNotFound
@@ -127,14 +133,14 @@ func (t task) GetById(ctx context.Context, id string) (entity.Task, error) {
 	return task, nil
 }
 
-func (t task) Done(ctx context.Context, id string) error {
+func (s service) Done(ctx context.Context, id string) error {
 	// check
 	if id == "" {
 		return entity.ErrNoID
 	}
 
 	//done task
-	task, err := t.db.GetById(ctx, id)
+	task, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entity.ErrTaskNotFound
@@ -152,7 +158,7 @@ func (t task) Done(ctx context.Context, id string) error {
 
 		task.Date = date.Next()
 
-		err = t.db.Change(ctx, task)
+		err = s.repo.Change(ctx, task)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return entity.ErrTaskNotFound
@@ -161,7 +167,7 @@ func (t task) Done(ctx context.Context, id string) error {
 		}
 	} else {
 		//delete task by id
-		err = t.db.Delete(ctx, id)
+		err = s.repo.Delete(ctx, id)
 		if err != nil {
 			return err
 		}
@@ -170,14 +176,14 @@ func (t task) Done(ctx context.Context, id string) error {
 	return nil
 }
 
-func (t task) Delete(ctx context.Context, id string) error {
+func (s service) Delete(ctx context.Context, id string) error {
 	// check
 	if id == "" {
 		return entity.ErrNoID
 	}
 
 	//get task by id
-	_, err := t.db.GetById(ctx, id)
+	_, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entity.ErrTaskNotFound
@@ -186,12 +192,22 @@ func (t task) Delete(ctx context.Context, id string) error {
 	}
 
 	//delete task by id
-	err = t.db.Delete(ctx, id)
+	err = s.repo.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (t service) NextDate(nowDate time.Time, dateStr string, repeat string) (string, error) {
+
+	date, err := nextdate.New(nowDate, dateStr, repeat)
+	if err != nil {
+		return "", err
+	}
+
+	return date.Next(), nil
 }
 
 func validateTask(task *entity.Task) error {
@@ -201,15 +217,15 @@ func validateTask(task *entity.Task) error {
 	}
 
 	if task.Date == "" {
-		task.Date = time.Now().Format(entity.Format)
+		task.Date = time.Now().Format(entity.Format1)
 	}
 
-	_, err := time.Parse(entity.Format, task.Date)
+	_, err := time.Parse(entity.Format1, task.Date)
 	if err != nil {
 		return fmt.Errorf("%w: Date", entity.ErrFormatError)
 	}
 
-	nowTime := time.Now().Format(entity.Format)
+	nowTime := time.Now().Format(entity.Format1)
 	if task.Date < nowTime {
 		task.Date = nowTime
 	}

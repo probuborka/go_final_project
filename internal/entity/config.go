@@ -15,7 +15,8 @@ const (
 				);
 				CREATE INDEX scheduler_date ON "scheduler"("date");`
 
-	Format = "20060102"
+	Format1 = "20060102"
+	Format2 = "02.01.2006"
 )
 
 type HTTPConfig struct {

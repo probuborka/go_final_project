@@ -11,7 +11,7 @@ import (
 func (h handler) getNextDate(w http.ResponseWriter, r *http.Request) {
 
 	now := r.FormValue("now")
-	nowDate, err := time.Parse(entity.Format, now)
+	nowDate, err := time.Parse(entity.Format1, now)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger.Error(err)

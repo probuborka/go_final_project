@@ -7,25 +7,25 @@ import (
 )
 
 type handler struct {
-	task          taskService
-	authorization authorizationService
+	task           serviceTask
+	authentication serviceAuthentication
 }
 
-func New(task taskService, authorization authorizationService) *handler {
+func New(task serviceTask, authentication serviceAuthentication) *handler {
 	return &handler{
-		task:          task,
-		authorization: authorization,
+		task:           task,
+		authentication: authentication,
 	}
 }
 
 func (h handler) Init() http.Handler {
 	r := http.NewServeMux()
 
-	//next date
-	r.HandleFunc("GET /api/nextdate", h.getNextDate)
-
 	//web
 	r.Handle("/", http.FileServer(http.Dir(entity.WebDir)))
+
+	//next date
+	r.HandleFunc("GET /api/nextdate", h.getNextDate)
 
 	//create task
 	r.HandleFunc("POST /api/task", h.createTask)
@@ -45,13 +45,16 @@ func (h handler) Init() http.Handler {
 	//delete task
 	r.HandleFunc("DELETE /api/task", h.deleteTask)
 
-	//authorization
+	//authentication
 	r.HandleFunc("POST /api/signin", h.password)
 
-	hand := logging(r)
-	hand = auth(hand)
-
 	//
+	stack := []middleware{
+		logging,
+		authentication,
+	}
+
+	hand := compileMiddleware(r, stack)
 
 	return hand
 }

@@ -1,4 +1,4 @@
-package service
+package authentication
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/probuborka/go_final_project/internal/entity"
 )
 
-type authorization struct {
+type service struct {
 }
 
-func newAuthorization() authorization {
-	return authorization{}
+func New() service {
+	return service{}
 }
 
-func (a authorization) Password(ctx context.Context, authorization entity.Authorization) (string, error) {
+func (s service) Password(ctx context.Context, authentication entity.Authentication) (string, error) {
 
 	password := os.Getenv("TODO_PASSWORD")
 
-	if password != authorization.Password {
+	if password != authentication.Password {
 		return "", entity.ErrInvalidPassword
 	}
 
