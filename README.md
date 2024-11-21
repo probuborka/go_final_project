@@ -10,9 +10,6 @@
 - Аутентификация
 - Создание докер образа
 ## Инструкция по запуску кода локально 
-```
-cd <проект>  
-```
 ```golang
 go run ./cmd/todo/main.go
 ```   
@@ -34,9 +31,6 @@ FullNextDate = true
 Search = true  
 Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.P4Lqll22jQQJ1eMJikvNg5HKG-cKB0hUZA9BZFIG7Jk"
 ### Запуск тестов
-```
-cd <проект>  
-```
 ```golang
 go test ./tests
 ```
