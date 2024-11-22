@@ -78,102 +78,65 @@ func newM(now time.Time, date time.Time, repeat []string) (date, error) {
 }
 
 func (m m) Next() string {
-
-	switch {
-	case m.len == 2:
-		if m.date.Before(m.now) {
-			m.date = m.now
-		}
-		for {
-			//
-			nextDate := m.date
-			// current day
-			curDay := m.date.Day()
-			// last day
-			lastDay := m.date.AddDate(0, 1, -curDay).Day()
-			//
-			day := 0
-			m1 := 0
-			for _, v := range m.days {
-				if v < 0 {
-					day = lastDay + v + 1
-				} else {
-					day = v
-				}
-
-				if day > curDay && day <= lastDay-m1 {
-					nextDate = m.date.AddDate(0, 0, day-curDay)
-					if v == -2 {
-						m1 = 1
-					}
-					if v > 0 {
-						break
-					}
-				}
-			}
-			if nextDate.After(m.date) {
-				return nextDate.Format(entity.Format1)
-			}
-			m.date = m.date.AddDate(0, 1, -curDay+1)
-		}
-	case m.len == 3:
-		if m.date.Before(m.now) {
-			m.date = m.now
-		}
-		startDateCheck := m.date
-		for {
-			//
-			nextDate := m.date
-			// current day
-			curDay := m.date.Day()
-			// last day
-			lastDay := m.date.AddDate(0, 1, -curDay).Day()
-			// current month
-			curMonth := int(m.date.Month())
-			for _, m1 := range m.months {
-				if m1 < curMonth {
-					continue
-				} else if m1 > curMonth {
-					m.date = m.date.AddDate(0, m1-curMonth, -curDay+1)
-					//
-					startDateCheck = m.date.AddDate(0, 0, -1)
-					//
-					nextDate = m.date
-					// current day
-					curDay = m.date.Day()
-					// last day
-					lastDay = m.date.AddDate(0, 1, -curDay).Day()
-					//
-					curMonth = int(m.date.Month())
-				}
-				//
-				day := 0
-				m1 := 0
-				for _, d := range m.days {
-					if d < 0 {
-						day = lastDay + d + 1
-					} else {
-						day = d
-					}
-
-					if day >= curDay && day <= lastDay-m1 {
-						nextDate = m.date.AddDate(0, 0, day-curDay)
-						if d == -2 {
-							m1 = 1
-						}
-						if d > 0 {
-							break
-						}
-					}
-				}
-				if nextDate.After(startDateCheck) {
-					return nextDate.Format(entity.Format1)
-				}
-			}
-			m.date = m.date.AddDate(0, 12-curMonth+1, -curDay+1)
-			startDateCheck = m.date.AddDate(0, 0, -1)
-		}
-	default:
-		return "" //, fmt.Errorf("%w: :-(")
+	var months []int
+	if m.len == 3 {
+		months = append(months, m.months...)
+	} else {
+		months = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	}
+	date := m.date
+	if date.Before(m.now) {
+		date = m.now
+	}
+
+	ys, mm, ds := date.Date()
+	ms := int(mm)
+	yss := ys
+	for i := 0; i < 2; i++ {
+		for _, v := range months {
+			if v < ms {
+				continue
+			}
+			if v != ms {
+				ds = 1
+			} else if v == ms && ys == yss {
+				ds++
+			}
+			ms = v
+			days := daysInMonths(m.days, ys, ms, date.Location())
+			for _, v := range days {
+				if v < ds {
+					continue
+				}
+				ds = v
+				date := time.Date(ys, time.Month(ms), ds, 0, 0, 0, 0, date.Location())
+				if time.Month(ms) == date.Month() {
+					return date.Format(entity.Format1)
+				}
+			}
+		}
+		ys++
+	}
+	return ""
+}
+
+func daysInMonths(days []int, ys, ms int, Location *time.Location) []int {
+	retDays := make([]int, 0)
+	date := time.Date(ys, time.Month(ms), 1, 0, 0, 0, 0, Location)
+	lastOfMonth := date.AddDate(0, 1, -1)
+	for _, v := range days {
+		if v > 0 {
+			retDays = append(retDays, v)
+		} else if v == -1 {
+			retDays = append(retDays, lastOfMonth.Day())
+		} else if v == -2 {
+			retDays = append(retDays, lastOfMonth.Day()-1)
+		}
+	}
+
+	sort.Slice(retDays, func(i, j int) bool {
+		return retDays[i] < retDays[j]
+	})
+
+	return retDays
 }
