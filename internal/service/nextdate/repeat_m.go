@@ -120,9 +120,9 @@ func (m m) Next() string {
 	return ""
 }
 
-func daysInMonths(days []int, ys, ms int, Location *time.Location) []int {
+func daysInMonths(days []int, ys, ms int, location *time.Location) []int {
 	retDays := make([]int, 0)
-	date := time.Date(ys, time.Month(ms), 1, 0, 0, 0, 0, Location)
+	date := time.Date(ys, time.Month(ms), 1, 0, 0, 0, 0, location)
 	lastOfMonth := date.AddDate(0, 1, -1)
 	for _, v := range days {
 		if v > 0 {
