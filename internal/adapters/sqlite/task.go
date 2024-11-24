@@ -41,7 +41,7 @@ func (r repoTask) Create(ctx context.Context, task entitytask.Task) (int, error)
 	return int(id), nil
 }
 
-func (r repoTask) Change(ctx context.Context, task entitytask.Task) error {
+func (r repoTask) Update(ctx context.Context, task entitytask.Task) error {
 
 	res, err := r.db.Exec(
 		`UPDATE scheduler 

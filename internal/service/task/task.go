@@ -16,7 +16,7 @@ import (
 
 type repository interface {
 	Create(ctx context.Context, task entitytask.Task) (int, error)
-	Change(ctx context.Context, task entitytask.Task) error
+	Update(ctx context.Context, task entitytask.Task) error
 	Get(ctx context.Context, search string, searchDate string) ([]entitytask.Task, error)
 	GetById(ctx context.Context, id string) (entitytask.Task, error)
 	Delete(ctx context.Context, id string) error
@@ -89,7 +89,7 @@ func (s service) Change(ctx context.Context, task entitytask.Task) error {
 	}
 
 	//db change task
-	err = s.repo.Change(ctx, task)
+	err = s.repo.Update(ctx, task)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entityerror.ErrTaskNotFound
@@ -160,7 +160,7 @@ func (s service) Done(ctx context.Context, id string) error {
 
 		task.Date = date.Next()
 
-		err = s.repo.Change(ctx, task)
+		err = s.repo.Update(ctx, task)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return entityerror.ErrTaskNotFound
