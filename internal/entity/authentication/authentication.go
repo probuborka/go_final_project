@@ -1,4 +1,4 @@
-package entity
+package entityauth
 
 type Authentication struct {
 	Password string `json:"password"`

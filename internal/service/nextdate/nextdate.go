@@ -5,7 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 )
 
 type date interface {
@@ -13,7 +14,7 @@ type date interface {
 }
 
 func New(now time.Time, dateStr string, repeat string) (date, error) {
-	date, err := time.Parse(entity.Format1, dateStr)
+	date, err := time.Parse(entityconfig.Format1, dateStr)
 	if err != nil {
 		return nil, err
 	}
@@ -31,6 +32,6 @@ func New(now time.Time, dateStr string, repeat string) (date, error) {
 	case "m":
 		return newM(now, date, repeats)
 	default:
-		return nil, fmt.Errorf("%w: repeat %s", entity.ErrNotFound, repeats[0])
+		return nil, fmt.Errorf("%w: repeat %s", entityerror.ErrNotFound, repeats[0])
 	}
 }

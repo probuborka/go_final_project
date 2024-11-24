@@ -1,4 +1,4 @@
-package entity
+package entitytask
 
 type Task struct {
 	ID      string `json:"id"`

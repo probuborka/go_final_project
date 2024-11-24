@@ -1,12 +1,13 @@
-package entity
+package entityconfig
 
 const (
-	Port     = "7540"
-	WebDir   = "./web"
-	DBName   = "scheduler.db"
-	DBDriver = "sqlite"
-	DBDir    = "./db"
-	DBCreate = `CREATE TABLE scheduler (
+	Port      = "7540"
+	WebDir    = "./web"
+	DBName    = "scheduler.db"
+	DBDriver  = "sqlite"
+	DBDir     = "./db"
+	RowsLimit = 50
+	DBCreate  = `CREATE TABLE scheduler (
 					id integer PRIMARY KEY,
 					date VARCHAR(8) NOT NULL,
 					title text NOT NULL,
@@ -27,4 +28,8 @@ type DBConfig struct {
 	Driver string
 	File   string
 	Create string
+}
+
+type Authentication struct {
+	Password string
 }

@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 )
 
 type m struct {
@@ -21,7 +22,7 @@ type m struct {
 func newM(now time.Time, date time.Time, repeat []string) (date, error) {
 	len := len(repeat)
 	if len != 2 && len != 3 {
-		return nil, fmt.Errorf("%w: repeat M %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat M %s", entityerror.ErrFormatError, repeat)
 	}
 
 	//check day
@@ -30,11 +31,11 @@ func newM(now time.Time, date time.Time, repeat []string) (date, error) {
 	for _, v := range strDays {
 		day, err := strconv.Atoi(v)
 		if err != nil {
-			return nil, fmt.Errorf("%w: not a number %w", entity.ErrFormatError, err)
+			return nil, fmt.Errorf("%w: not a number %w", entityerror.ErrFormatError, err)
 		}
 
 		if day < -2 || day > 31 {
-			return nil, fmt.Errorf("%w: %v <> [-2..31]", entity.ErrNotInInterval, day)
+			return nil, fmt.Errorf("%w: %v <> [-2..31]", entityerror.ErrNotInInterval, day)
 		}
 
 		//
@@ -52,11 +53,11 @@ func newM(now time.Time, date time.Time, repeat []string) (date, error) {
 		for _, v := range strMonths {
 			month, err := strconv.Atoi(v)
 			if err != nil {
-				return nil, fmt.Errorf("%w: not a number %w", entity.ErrFormatError, err)
+				return nil, fmt.Errorf("%w: not a number %w", entityerror.ErrFormatError, err)
 			}
 
 			if month < 1 || month > 12 {
-				return nil, fmt.Errorf("%w: %v <> [1..12]", entity.ErrNotInInterval, month)
+				return nil, fmt.Errorf("%w: %v <> [1..12]", entityerror.ErrNotInInterval, month)
 			}
 
 			//
@@ -111,7 +112,7 @@ func (m m) Next() string {
 				ds = v
 				date := time.Date(ys, time.Month(ms), ds, 0, 0, 0, 0, date.Location())
 				if time.Month(ms) == date.Month() {
-					return date.Format(entity.Format1)
+					return date.Format(entityconfig.Format1)
 				}
 			}
 		}

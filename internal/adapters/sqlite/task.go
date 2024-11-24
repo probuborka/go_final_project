@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"strconv"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entitytask "github.com/probuborka/go_final_project/internal/entity/task"
 )
 
 type repoTask struct {
@@ -18,7 +19,7 @@ func newRepoTask(db *sql.DB) repoTask {
 	}
 }
 
-func (r repoTask) Create(ctx context.Context, task entity.Task) (int, error) {
+func (r repoTask) Create(ctx context.Context, task entitytask.Task) (int, error) {
 
 	res, err := r.db.Exec(
 		`INSERT INTO scheduler (date, title, comment, repeat) 
@@ -40,7 +41,7 @@ func (r repoTask) Create(ctx context.Context, task entity.Task) (int, error) {
 	return int(id), nil
 }
 
-func (r repoTask) Change(ctx context.Context, task entity.Task) error {
+func (r repoTask) Change(ctx context.Context, task entitytask.Task) error {
 
 	res, err := r.db.Exec(
 		`UPDATE scheduler 
@@ -71,7 +72,7 @@ func (r repoTask) Change(ctx context.Context, task entity.Task) error {
 	return nil
 }
 
-func (r repoTask) Get(ctx context.Context, search string, searchDate string) ([]entity.Task, error) {
+func (r repoTask) Get(ctx context.Context, search string, searchDate string) ([]entitytask.Task, error) {
 
 	search = "%" + search + "%"
 
@@ -81,17 +82,18 @@ func (r repoTask) Get(ctx context.Context, search string, searchDate string) ([]
 		 WHERE title LIKE :search 
 		    OR comment LIKE :search
 			OR date = :searchDate
-		 ORDER BY date LIMIT :limit`,
+		 ORDER BY date 
+		 LIMIT :limit`,
 		sql.Named("search", search),
 		sql.Named("searchDate", searchDate),
-		sql.Named("limit", 50),
+		sql.Named("limit", entityconfig.RowsLimit),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	task := entity.Task{}
-	tasks := make([]entity.Task, 0)
+	task := entitytask.Task{}
+	tasks := make([]entitytask.Task, 0)
 
 	for rows.Next() {
 		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
@@ -104,8 +106,8 @@ func (r repoTask) Get(ctx context.Context, search string, searchDate string) ([]
 	return tasks, nil
 }
 
-func (r repoTask) GetById(ctx context.Context, idStr string) (entity.Task, error) {
-	task := entity.Task{}
+func (r repoTask) GetById(ctx context.Context, idStr string) (entitytask.Task, error) {
+	task := entitytask.Task{}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

@@ -6,22 +6,23 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityauth "github.com/probuborka/go_final_project/internal/entity/authentication"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
 type serviceAuthentication interface {
-	Password(ctx context.Context, authentication entity.Authentication) (string, error)
+	Password(ctx context.Context, authentication entityauth.Authentication) (string, error)
 }
 
 func (h handler) password(w http.ResponseWriter, r *http.Request) {
-	var authentication entity.Authentication
+	var authentication entityauth.Authentication
 	var buf bytes.Buffer
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
 		//
-		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
+		response(w, entityerror.Error{Error: err.Error()}, http.StatusBadRequest)
 		//
 		logger.Error(err)
 		return
@@ -30,7 +31,7 @@ func (h handler) password(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(buf.Bytes(), &authentication)
 	if err != nil {
 		//
-		response(w, entity.Error{Error: err.Error()}, http.StatusBadRequest)
+		response(w, entityerror.Error{Error: err.Error()}, http.StatusBadRequest)
 		//
 		logger.Error(err)
 		return
@@ -39,12 +40,12 @@ func (h handler) password(w http.ResponseWriter, r *http.Request) {
 	token, err := h.authentication.Password(r.Context(), authentication)
 	if err != nil {
 		//
-		response(w, entity.Error{Error: err.Error()}, http.StatusUnauthorized)
+		response(w, entityerror.Error{Error: err.Error()}, http.StatusUnauthorized)
 		//
 		logger.Error(err)
 		return
 	}
 
 	//
-	response(w, entity.Token{Token: token}, http.StatusCreated)
+	response(w, entityauth.Token{Token: token}, http.StatusCreated)
 }

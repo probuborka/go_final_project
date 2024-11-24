@@ -2,28 +2,30 @@ package authentication
 
 import (
 	"context"
-	"os"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityauth "github.com/probuborka/go_final_project/internal/entity/authentication"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 )
 
 type service struct {
+	auth entityconfig.Authentication
 }
 
-func New() service {
-	return service{}
+func New(auth entityconfig.Authentication) service {
+	return service{
+		auth: auth,
+	}
 }
 
-func (s service) Password(ctx context.Context, authentication entity.Authentication) (string, error) {
+func (s service) Password(ctx context.Context, authentication entityauth.Authentication) (string, error) {
 
-	password := os.Getenv("TODO_PASSWORD")
-
-	if password != authentication.Password {
-		return "", entity.ErrInvalidPassword
+	if s.auth.Password != authentication.Password {
+		return "", entityerror.ErrInvalidPassword
 	}
 
-	secret := []byte(password)
+	secret := []byte(s.auth.Password)
 
 	// создаём jwt и указываем алгоритм хеширования
 	jwtToken := jwt.New(jwt.SigningMethodHS256)

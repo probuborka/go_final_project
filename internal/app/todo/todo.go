@@ -40,19 +40,20 @@ func Run() {
 
 	//service
 	task := task.New(repo.Task)
-	authentication := authentication.New()
+	authentication := authentication.New(cfg.Auth)
 
 	//handlers
 	handlers := handler.New(
 		task,
 		authentication,
+		cfg.Auth,
 	)
 
 	//http server
 	server := route.New(cfg.HTTP.Port, handlers.Init())
 
 	//start server
-	logger.Info("server start")
+	logger.Info("server start, port:", cfg.HTTP.Port)
 	go func() {
 		if err := server.Run(); !errors.Is(err, http.ErrServerClosed) {
 			logger.Errorf("error occurred while running http server: %s\n", err.Error())

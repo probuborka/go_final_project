@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
 	"github.com/probuborka/go_final_project/pkg/logger"
 )
 
 func (h handler) getNextDate(w http.ResponseWriter, r *http.Request) {
 
 	now := r.FormValue("now")
-	nowDate, err := time.Parse(entity.Format1, now)
+	nowDate, err := time.Parse(entityconfig.Format1, now)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger.Error(err)

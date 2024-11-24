@@ -1,14 +1,29 @@
-FROM golang:1.22 as builder
-WORKDIR /app
-COPY . .
-RUN go mod tidy
-RUN GOOS=linux GOARCH=amd64 go build -o todo_lisl ./cmd/main.go
+#golang build todo-list
+FROM golang:1.22.1-alpine as builder
 
-FROM ubuntu:latest as todo
-ENV TODO_PORT=7540
-ENV TODO_DBFILE=scheduler.db
-ENV TODO_PASSWORD=test
+ENV GOOS linux
+
 WORKDIR /app
-COPY --from=builder /app/todo_lisl /app/todo_lisl
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o /app/todo_list ./cmd/todo/main.go
+
+#alpine run todo-list
+FROM alpine:latest as todo
+
+ENV TODO_PORT=7540
+
+ENV TODO_DBFILE=scheduler.db
+
+ENV TODO_PASSWORD=test
+
+WORKDIR /app
+
+COPY --from=builder /app/todo_list /app/todo_list
+
 COPY --from=builder /app/web /app/web
-ENTRYPOINT ["/app/todo_lisl"]
+
+ENTRYPOINT ["/app/todo_list"]

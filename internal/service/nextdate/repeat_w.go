@@ -6,7 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 )
 
 type w struct {
@@ -18,24 +19,24 @@ type w struct {
 func newW(now time.Time, date time.Time, repeat []string) (date, error) {
 
 	if len(repeat) != 2 {
-		return nil, fmt.Errorf("%w: repeat W %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat W %s", entityerror.ErrFormatError, repeat)
 	}
 
 	daysWeeks := strings.Split(repeat[1], ",")
 
 	if len(daysWeeks) > 7 {
-		return nil, fmt.Errorf("%w: days in week %v", entity.ErrFormatError, len(daysWeeks))
+		return nil, fmt.Errorf("%w: days in week %v", entityerror.ErrFormatError, len(daysWeeks))
 	}
 
 	days := make(map[int]struct{})
 	for _, v := range daysWeeks {
 		day, err := strconv.Atoi(v)
 		if err != nil {
-			return nil, fmt.Errorf("%w: not a number %w", entity.ErrFormatError, err)
+			return nil, fmt.Errorf("%w: not a number %w", entityerror.ErrFormatError, err)
 		}
 
 		if day < 1 || day > 7 {
-			return nil, fmt.Errorf("%w: %v <> [1..7]", entity.ErrNotInInterval, day)
+			return nil, fmt.Errorf("%w: %v <> [1..7]", entityerror.ErrNotInInterval, day)
 		}
 
 		//
@@ -66,5 +67,5 @@ func (w w) Next() string {
 			break
 		}
 	}
-	return nextDate.Format(entity.Format1)
+	return nextDate.Format(entityconfig.Format1)
 }

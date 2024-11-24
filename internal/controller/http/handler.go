@@ -3,7 +3,11 @@ package http
 import (
 	"net/http"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+)
+
+var (
+	cfg entityconfig.Authentication
 )
 
 type handler struct {
@@ -11,7 +15,8 @@ type handler struct {
 	authentication serviceAuthentication
 }
 
-func New(task serviceTask, authentication serviceAuthentication) *handler {
+func New(task serviceTask, authentication serviceAuthentication, cfg entityconfig.Authentication) *handler {
+	cfg = cfg
 	return &handler{
 		task:           task,
 		authentication: authentication,
@@ -22,7 +27,7 @@ func (h handler) Init() http.Handler {
 	r := http.NewServeMux()
 
 	//web
-	r.Handle("/", http.FileServer(http.Dir(entity.WebDir)))
+	r.Handle("/", http.FileServer(http.Dir(entityconfig.WebDir)))
 
 	//next date
 	r.HandleFunc("GET /api/nextdate", h.getNextDate)

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/probuborka/go_final_project/internal/entity"
+	entityconfig "github.com/probuborka/go_final_project/internal/entity/config"
+	entityerror "github.com/probuborka/go_final_project/internal/entity/error"
 )
 
 type y struct {
@@ -14,7 +15,7 @@ type y struct {
 
 func newY(now time.Time, date time.Time, repeat []string) (date, error) {
 	if len(repeat) != 1 {
-		return nil, fmt.Errorf("%w: repeat Y %s", entity.ErrFormatError, repeat)
+		return nil, fmt.Errorf("%w: repeat Y %s", entityerror.ErrFormatError, repeat)
 	}
 
 	return y{
@@ -30,5 +31,5 @@ func (y y) Next() string {
 		nextDate = nextDate.AddDate(1, 0, 0)
 	}
 
-	return nextDate.Format(entity.Format1)
+	return nextDate.Format(entityconfig.Format1)
 }
