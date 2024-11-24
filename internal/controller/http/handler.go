@@ -15,8 +15,8 @@ type handler struct {
 	authentication serviceAuthentication
 }
 
-func New(task serviceTask, authentication serviceAuthentication, cfg entityconfig.Authentication) *handler {
-	cfg = cfg
+func New(task serviceTask, authentication serviceAuthentication, cfgAuth entityconfig.Authentication) *handler {
+	cfg = cfgAuth
 	return &handler{
 		task:           task,
 		authentication: authentication,
